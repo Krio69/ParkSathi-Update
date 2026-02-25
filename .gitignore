@@ -1,0 +1,27 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# --- Environments (CRUCIAL) ---
+parksathi_env/
+.env
+venv/
+env/
+ENV/
+
+# --- Django Specific ---
+db.sqlite3
+*.log
+local_settings.py
+staticfiles/
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
+
+# --- IDEs ---
+.vscode/
+.idea/

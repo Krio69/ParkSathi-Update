@@ -1,0 +1,212 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ParkSathi — Premium Parking Finder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+    
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; overflow-x: hidden; }
+
+    /* ── UI Components ── */
+    .hero-section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1) 0%, transparent 50%); }
+    .brand-text { font-size: clamp(3.5rem, 10vw, 7rem); font-weight: 900; background: linear-gradient(135deg, #38bdf8 0%, #34d399 50%, #38bdf8 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientMove 5s linear infinite; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: default; }
+    .brand-text:hover { transform: scale(1.08); }
+    @keyframes gradientMove { to { background-position: 200% center; } }
+    .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+    /* ── Map Elements ── */
+    #map-container { display: none; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; z-index: 50; }
+    #map-container.active { display: block; animation: fadeIn 0.6s ease-out; }
+    #map { height: 100%; width: 100%; z-index: 0; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: scale(1); } }
+    .leaflet-routing-container { display: none !important; }
+
+    /* ── Custom Marker Styles ── */
+    .user-marker-label {
+        background: #10b981;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 9px;
+        font-weight: 900;
+        border: 2px solid white;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+        white-space: nowrap;
+    }
+
+    .parking-marker-p {
+        background: #ef4444;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 14px;
+        border: 2px solid white;
+        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+        transition: transform 0.2s;
+    }
+    .parking-marker-p:hover { transform: scale(1.2); background: #dc2626; }
+
+    #parking-list::-webkit-scrollbar { width: 4px; }
+    #parking-list::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.3); border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+  <section id="hero" class="hero-section">
+    <div class="text-center px-6">
+      <h1 class="brand-text">ParkSathi</h1>
+      <p class="mt-4 text-slate-400 tracking-[0.3em] uppercase text-[10px] font-semibold">Make your parking easy</p>
+      <div class="mt-12">
+        <a href="#gps-section" class="px-10 py-4 rounded-2xl bg-sky-500/90 text-white font-bold shadow-lg inline-block hover:-translate-y-1 transition-transform">
+          Find Parking Near Me
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="gps-section" class="h-screen flex items-center justify-center bg-slate-900/50">
+    <div class="glass p-12 rounded-[2rem] text-center max-w-md mx-4 transition-all">
+      <div class="w-20 h-20 bg-sky-500/20 rounded-full flex items-center justify-center mx-auto mb-8">
+        <i data-lucide="map-pin" class="text-sky-400 w-10 h-10"></i>
+      </div>
+      <h2 class="text-3xl font-black text-white mb-4">Location Access</h2>
+      <p class="text-slate-400 text-sm leading-relaxed mb-10">GPS is required to show your position and parking spots from the Kathmandu database.</p>
+      <button id="enable-gps-btn" class="w-full py-4 rounded-xl bg-sky-500 text-white font-bold text-lg mb-4 shadow-lg hover:bg-sky-400 transition-colors">
+        Enable GPS
+      </button>
+      <button onclick="window.scrollTo(0,0)" class="text-slate-500 hover:text-white text-sm font-medium transition-colors">Back to Home</button>
+    </div>
+  </section>
+
+  <div id="map-container">
+    <div id="map"></div>
+
+    <div id="sidebar" class="fixed top-0 left-0 h-full w-[350px] z-[1000] glass flex flex-col border-r border-white/5">
+        <div class="p-6 border-b border-white/10">
+            <div class="flex items-center gap-3">
+                <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+                <h1 class="text-2xl font-black text-white tracking-tighter">ParkSathi</h1>
+            </div>
+            <p class="text-[10px] text-sky-400 font-bold uppercase mt-2 tracking-widest">Available Spots</p>
+        </div>
+        
+        <div id="parking-list" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+
+        <div class="p-4">
+            <button onclick="window.location.reload()" class="w-full glass py-3 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-sky-500/20 transition-all">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset Map
+            </button>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    let map, userLat, userLng, routingControl;
+
+    function initMap(lat, lng) {
+      map = L.map('map', { zoomControl: false }).setView([lat, lng], 15);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CartoDB' }).addTo(map);
+      L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+      // ── Updated User Marker (YOU Keyword) ──
+      const userIcon = L.divIcon({
+        html: `<div class="user-marker-label">YOU</div>`,
+        className: '',
+        iconSize: [40, 20],
+        iconAnchor: [20, 10]
+      });
+      L.marker([lat, lng], { icon: userIcon }).addTo(map);
+
+      loadGeoJSON();
+    }
+
+    function loadGeoJSON() {
+      fetch("{% static 'geojson/kathmanduparking.geojson' %}")
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('parking-list');
+          list.innerHTML = '';
+
+          const parkingLayer = L.geoJSON(data, {
+            pointToLayer: (feature, latlng) => {
+              // ── Updated Parking Marker (P Keyword) ──
+              return L.marker(latlng, {
+                icon: L.divIcon({
+                    html: `<div class="parking-marker-p">P</div>`,
+                    className: '',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                })
+              });
+            },
+            onEachFeature: (feature, layer) => {
+              const card = document.createElement('div');
+              card.className = "bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-red-500/50 hover:bg-white/10 transition-all cursor-pointer group";
+              card.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <h3 class="font-bold text-white text-sm group-hover:text-red-400 transition-colors">${feature.properties.name || 'Parking Spot'}</h3>
+                    <div class="bg-red-500/20 text-red-400 px-2 py-1 rounded text-[9px] font-black italic">P</div>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-1">${feature.properties.address || 'Kathmandu, Nepal'}</p>
+              `;
+              
+              card.onclick = () => {
+                map.flyTo([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], 17);
+                layer.openPopup();
+                startNav(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+              };
+              list.appendChild(card);
+
+              layer.bindPopup(`
+                <div class="text-slate-800 p-1 text-center">
+                  <h3 class="font-bold text-sm mb-2">${feature.properties.name}</h3>
+                  <button onclick="startNav(${feature.geometry.coordinates[1]}, ${feature.geometry.coordinates[0]})" 
+                          style="background:#ef4444; color:white; width:100%; border:none; padding:8px; border-radius:6px; font-weight:bold; cursor:pointer;">
+                    GO NOW
+                  </button>
+                </div>
+              `);
+            }
+          }).addTo(map);
+
+          lucide.createIcons();
+          if (data.features.length > 0) map.fitBounds(parkingLayer.getBounds(), { padding: [100, 100] });
+        });
+    }
+
+    function startNav(dLat, dLng) {
+      if (routingControl) map.removeControl(routingControl);
+      routingControl = L.Routing.control({
+        waypoints: [L.latLng(userLat, userLng), L.latLng(dLat, dLng)],
+        lineOptions: { styles: [{ color: '#ef4444', weight: 6, opacity: 0.8 }] },
+        createMarker: () => null
+      }).addTo(map);
+    }
+
+    document.getElementById('enable-gps-btn').addEventListener('click', () => {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        userLat = pos.coords.latitude; userLng = pos.coords.longitude;
+        document.getElementById('map-container').classList.add('active');
+        initMap(userLat, userLng);
+      }, (err) => alert("GPS required. Use http://localhost:8000"));
+    });
+  </script>
+</body>
+</html>
