@@ -1,4 +1,4 @@
-# 🅿️ ParkSathi - Smart Parking Management System
+# 🅿️ ParkSathi - Make your parking easy
 
 ParkSathi is a Django-based web application designed to simplify parking management. It allows users to view parking availability, manage spots, and integrate geospatial data for smarter urban mobility.
 
