@@ -14,5 +14,6 @@ ParkSathi is a Django-based web application designed to simplify parking managem
 - **Styling:** CSS / Tailwind (if applicable)
 - **Deployment:** [Vercel](https://vercel.com/)
 - **Static Files:** WhiteNoise
-
+  
+## New features to be add on
 # ⚠️ Note for Users: This version is currently optimized for Desktop. I am working on the mobile-responsive update next! 📱🏗️
