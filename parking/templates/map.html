@@ -171,20 +171,97 @@
         });
     }
 
+    let watchId = null; 
+    let lastVoiceCommand = "";
+
     function startNav(dLat, dLng) {
-      if (!userLat || !userLng) return;
+      if (!userLat || !userLng) {
+        alert("Waiting for GPS signal...");
+        return;
+      }
+      
+      // 1. Reset any existing navigation
       if (routingControl) map.removeControl(routingControl);
+      if (watchId) navigator.geolocation.clearWatch(watchId);
+
+      // 2. Setup Routing (Free OSM Engine)
       routingControl = L.Routing.control({
         waypoints: [L.latLng(userLat, userLng), L.latLng(dLat, dLng)],
         lineOptions: { styles: [{ color: '#ef4444', weight: 6, opacity: 0.8 }] },
         createMarker: () => null,
         addWaypoints: false,
         draggableWaypoints: false,
-        fitSelectedRoutes: true
+        fitSelectedRoutes: true,
+        show: false // Hides the clunky text instructions box
       }).addTo(map);
+
+      // 3. VOICE & UI UPDATES
+      routingControl.on('routesfound', function(e) {
+        const route = e.routes[0];
+        const dist = route.summary.totalDistance; // in meters
+        const time = Math.round(route.summary.totalTime / 60); // in minutes
+        
+        updateNavUI(dist, time);
+        speakOnce(`Starting navigation. Your vehicle is ${Math.round(dist)} meters away.`);
+      });
+
+      // 4. LIVE TRACKING (watchPosition)
+      watchId = navigator.geolocation.watchPosition((pos) => {
+        userLat = pos.coords.latitude;
+        userLng = pos.coords.longitude;
+        
+        // Update "YOU" marker on map
+        userMarker.setLatLng([userLat, userLng]);
+        
+        // Update Route Start Point
+        routingControl.spliceWaypoints(0, 1, L.latLng(userLat, userLng));
+
+        // Check for "Arrived" logic (within 10 meters)
+        checkArrival(userLat, userLng, dLat, dLng);
+        
+      }, (err) => console.error(err), { enableHighAccuracy: true });
+
       map.closePopup();
     }
 
+    // Voice Engine
+    function speakOnce(text) {
+        if (lastVoiceCommand === text) return;
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.rate = 1.0;
+        window.speechSynthesis.speak(msg);
+        lastVoiceCommand = text;
+    }
+
+    // Navigation UI
+    function updateNavUI(m, mins) {
+        const km = (m / 1000).toFixed(2);
+        const list = document.getElementById('parking-list');
+        
+        // Remove old status if exists
+        const oldStatus = document.getElementById('nav-status');
+        if (oldStatus) oldStatus.remove();
+
+        list.insertAdjacentHTML('afterbegin', `
+            <div id="nav-status" class="bg-emerald-500/10 border border-emerald-500/40 p-4 rounded-2xl mb-4 animate-pulse">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-emerald-400 font-black text-[10px] tracking-widest uppercase">Live Tracking</span>
+                    <span class="text-white font-bold text-xs">${mins} MINS</span>
+                </div>
+                <div class="text-white text-lg font-black">${km} <span class="text-[10px] text-slate-400">KM AWAY</span></div>
+            </div>
+        `);
+    }
+
+    function checkArrival(uLat, uLng, dLat, dLng) {
+        const distance = map.distance([uLat, uLng], [dLat, dLng]);
+        if (distance < 15) { // Within 15 meters
+            speakOnce("You have arrived at your parking destination.");
+            navigator.geolocation.clearWatch(watchId);
+            const status = document.getElementById('nav-status');
+            if (status) status.innerHTML = `<div class="text-emerald-400 font-black text-center text-xs p-2">ARRIVED! 🏁</div>`;
+        }
+    }
     function recenterMap() { if (userLat && userLng) map.flyTo([userLat, userLng], 16); }
 
     function goBackToHome() {
