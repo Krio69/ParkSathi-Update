@@ -17,27 +17,11 @@
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; overflow-x: hidden; }
 
-    /* --- CUSTOM CSS LOGO --- */
-    .logo-container {
-        width: 80px; height: 80px;
-        background: linear-gradient(135deg, #38bdf8, #1d4ed8);
-        border-radius: 22% 78% 15% 85% / 73% 20% 80% 27%; /* Modern Organic Shape */
-        display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4);
-        margin: 0 auto;
-        position: relative;
-        animation: morph 8s ease-in-out infinite;
-    }
+    /* LOGO & UI STYLES */
+    .logo-container { width: 80px; height: 80px; background: linear-gradient(135deg, #38bdf8, #1d4ed8); border-radius: 22% 78% 15% 85% / 73% 20% 80% 27%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4); margin: 0 auto; animation: morph 8s ease-in-out infinite; }
     .logo-p { font-size: 40px; font-weight: 900; color: white; font-style: italic; text-shadow: 2px 2px 0px #ef4444; }
-    
-    @keyframes morph {
-        0%, 100% { border-radius: 22% 78% 15% 85% / 73% 20% 80% 27%; }
-        50% { border-radius: 73% 27% 76% 24% / 31% 79% 21% 69%; }
-    }
-
+    @keyframes morph { 0%, 100% { border-radius: 22% 78% 15% 85% / 73% 20% 80% 27%; } 50% { border-radius: 73% 27% 76% 24% / 31% 79% 21% 69%; } }
     .sidebar-logo { width: 40px; height: 40px; border-radius: 10px; background: #38bdf8; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; font-size: 20px; }
-
-    /* UI Styles */
     .hero-section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1) 0%, transparent 50%); }
     .brand-text { font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; background: linear-gradient(135deg, #38bdf8 0%, #34d399 50%, #38bdf8 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientMove 5s linear infinite; }
     @keyframes gradientMove { to { background-position: 200% center; } }
@@ -50,22 +34,20 @@
 
     .user-marker-label { background: #10b981; color: white; padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 900; border: 2px solid white; box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
     .parking-marker-p { background: #ef4444; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; border: 2px solid white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); }
+    
+    /* Search Bar Customization */
+    #search-input::placeholder { color: #94a3b8; font-size: 12px; }
   </style>
 </head>
 <body>
 
   <section id="hero" class="hero-section">
     <div class="text-center px-6">
-      <div class="logo-container mb-8">
-          <span class="logo-p">P</span>
-      </div>
-      
+      <div class="logo-container mb-8"><span class="logo-p">P</span></div>
       <h1 class="brand-text">ParkSathi</h1>
       <p class="mt-4 text-slate-400 tracking-[0.3em] uppercase text-[10px] font-semibold">Make your parking easy</p>
       <div class="mt-12">
-        <a href="#gps-section" class="px-10 py-4 rounded-2xl bg-sky-500/90 text-white font-bold shadow-lg inline-block hover:-translate-y-1 transition-transform">
-          Find Parking Near Me
-        </a>
+        <a href="#gps-section" class="px-10 py-4 rounded-2xl bg-sky-500/90 text-white font-bold shadow-lg inline-block hover:-translate-y-1 transition-transform">Find Parking Near Me</a>
       </div>
     </div>
   </section>
@@ -76,18 +58,13 @@
         <i data-lucide="map-pin" class="text-sky-400 w-10 h-10"></i>
       </div>
       <h2 class="text-3xl font-black text-white mb-6">Location Access</h2>
-      <button id="enable-gps-btn" class="w-full py-4 rounded-xl bg-sky-500 text-white font-bold text-lg shadow-lg hover:bg-sky-400 transition-colors">
-        Enable GPS
-      </button>
+      <button id="enable-gps-btn" class="w-full py-4 rounded-xl bg-sky-500 text-white font-bold text-lg shadow-lg hover:bg-sky-400 transition-colors">Enable GPS</button>
     </div>
   </section>
 
   <div id="map-container">
     <div id="map"></div>
-    
-    <button onclick="recenterMap()" class="fixed bottom-6 right-6 z-[1001] bg-emerald-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all">
-        <i data-lucide="locate-fixed" class="w-6 h-6"></i>
-    </button>
+    <button onclick="recenterMap()" class="fixed bottom-6 right-6 z-[1001] bg-emerald-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all"><i data-lucide="locate-fixed" class="w-6 h-6"></i></button>
 
     <div id="sidebar" class="fixed top-0 left-0 h-full w-[350px] z-[1000] glass flex flex-col border-r border-white/5">
         <div class="p-6 border-b border-white/10 flex items-center gap-4">
@@ -100,26 +77,27 @@
                 </div>
             </div>
         </div>
+
+        <div class="p-4 border-b border-white/5 bg-white/5">
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+                <input type="text" id="search-input" oninput="filterParking()" placeholder="Search parking location..." class="w-full bg-slate-900/50 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-sky-500 transition-all">
+            </div>
+        </div>
         
         <div id="parking-list" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
 
         <div class="p-6 border-t border-white/10 bg-slate-900/40">
             <button onclick="goBackToHome()" class="w-full glass py-3 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-sky-500/20 transition-all mb-6 group">
-                <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> 
-                Back to home
+                <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> Back to home
             </button>
             <div class="text-center">
                 <p class="text-[10px] text-slate-400 font-medium">Built by</p>
                 <h4 class="text-sm font-black text-white mt-0.5">Kripesh Bhele</h4>
-               <div class="flex justify-center gap-4 mt-3">
-    <a href="https://www.linkedin.com/in/kripesh-bhele-74b4612bb/" target="_blank" class="text-slate-500 hover:text-sky-400 transition-all">
-        <i data-lucide="linkedin" class="w-4 h-4"></i>
-    </a>
-    
-    <a href="https://github.com/krio69" target="_blank" class="text-slate-500 hover:text-white transition-all">
-        <i data-lucide="github" class="w-4 h-4"></i>
-    </a>
-</div>
+                <div class="flex justify-center gap-4 mt-3">
+                    <a href="https://www.linkedin.com/in/kripesh-bhele-74b4612bb/" target="_blank" class="text-slate-500 hover:text-sky-400 transition-all"><i data-lucide="linkedin" class="w-4 h-4"></i></a>
+                    <a href="https://github.com/krio69" target="_blank" class="text-slate-500 hover:text-white transition-all"><i data-lucide="github" class="w-4 h-4"></i></a>
+                </div>
                 <p class="text-[8px] text-slate-600 mt-4 uppercase tracking-[0.2em] font-bold">&copy; 2026 All Rights Reserved</p>
             </div>
         </div>
@@ -128,7 +106,10 @@
 
   <script>
     lucide.createIcons();
-    let map, userLat, userLng, routingControl, userMarker;
+    let map, userLat, userLng, routingControl, userMarker, watchId;
+    let lastVoiceCommand = "";
+    let nextStepIndex = 0;
+    let allParkingData = [];
 
     function initMap(lat, lng) {
       if (map) map.remove();
@@ -136,12 +117,7 @@
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CartoDB' }).addTo(map);
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      const userIcon = L.divIcon({
-        html: `<div class="user-marker-label">YOU</div>`,
-        className: '',
-        iconSize: [40, 20],
-        iconAnchor: [20, 10]
-      });
+      const userIcon = L.divIcon({ html: `<div class="user-marker-label">YOU</div>`, className: '', iconSize: [40, 20], iconAnchor: [20, 10] });
       userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map);
       loadGeoJSON();
     }
@@ -150,125 +126,102 @@
       fetch("{% static 'geojson/kathmanduparking.geojson' %}")
         .then(res => res.json())
         .then(data => {
-          const list = document.getElementById('parking-list');
-          list.innerHTML = '';
-          const parkingLayer = L.geoJSON(data, {
-            pointToLayer: (feature, latlng) => {
-              return L.marker(latlng, { icon: L.divIcon({ html: `<div class="parking-marker-p">P</div>`, className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) });
-            },
-            onEachFeature: (feature, layer) => {
-              const pLat = feature.geometry.coordinates[1];
-              const pLng = feature.geometry.coordinates[0];
-              const card = document.createElement('div');
-              card.className = "bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-red-500/50 hover:bg-white/10 transition-all cursor-pointer group";
-              card.innerHTML = `<div class="flex justify-between items-start"><h3 class="font-bold text-white text-sm group-hover:text-red-400 transition-colors">${feature.properties.name}</h3><div class="bg-red-500/20 text-red-400 px-2 py-1 rounded text-[9px] font-black italic">P</div></div>`;
-              card.onclick = () => { map.flyTo([pLat, pLng], 17); layer.openPopup(); startNav(pLat, pLng); };
-              list.appendChild(card);
-              layer.bindPopup(`<div class="text-slate-800 p-1 text-center"><h3 class="font-bold text-sm mb-2">${feature.properties.name}</h3><button onclick="startNav(${pLat}, ${pLng})" style="background:#ef4444; color:white; width:100%; border:none; padding:8px; border-radius:6px; font-weight:bold; cursor:pointer;">NAVIGATE</button></div>`);
-            }
-          }).addTo(map);
-          if (data.features.length > 0) map.fitBounds(parkingLayer.getBounds(), { padding: [100, 100] });
+          allParkingData = data.features;
+          renderParkingList(allParkingData);
         });
     }
 
-    let watchId = null; 
-    let lastVoiceCommand = "";
+    function renderParkingList(features) {
+      const list = document.getElementById('parking-list');
+      list.innerHTML = '';
+      features.forEach(feature => {
+        const [lng, lat] = feature.geometry.coordinates;
+        const card = document.createElement('div');
+        card.className = "parking-card bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-red-500/50 hover:bg-white/10 transition-all cursor-pointer group";
+        card.innerHTML = `<div class="flex justify-between items-start"><h3 class="font-bold text-white text-sm group-hover:text-red-400 transition-colors">${feature.properties.name}</h3><div class="bg-red-500/20 text-red-400 px-2 py-1 rounded text-[9px] font-black italic">P</div></div>`;
+        card.onclick = () => { map.flyTo([lat, lng], 17); startNav(lat, lng); };
+        list.appendChild(card);
+        
+        L.marker([lat, lng], { icon: L.divIcon({ html: `<div class="parking-marker-p">P</div>`, className: '', iconSize: [30, 30], iconAnchor: [15, 15] }) })
+          .addTo(map)
+          .bindPopup(`<div class="text-slate-800 p-1 text-center"><h3 class="font-bold text-sm mb-2">${feature.properties.name}</h3><button onclick="startNav(${lat}, ${lng})" style="background:#ef4444; color:white; width:100%; border:none; padding:8px; border-radius:6px; font-weight:bold; cursor:pointer;">NAVIGATE</button></div>`);
+      });
+    }
+
+    function filterParking() {
+      const query = document.getElementById('search-input').value.toLowerCase();
+      const filtered = allParkingData.filter(f => f.properties.name.toLowerCase().includes(query));
+      renderParkingList(filtered);
+    }
 
     function startNav(dLat, dLng) {
-      if (!userLat || !userLng) {
-        alert("Waiting for GPS signal...");
-        return;
-      }
-      
-      // 1. Reset any existing navigation
+      if (!userLat || !userLng) return;
       if (routingControl) map.removeControl(routingControl);
       if (watchId) navigator.geolocation.clearWatch(watchId);
+      nextStepIndex = 0;
 
-      // 2. Setup Routing (Free OSM Engine)
       routingControl = L.Routing.control({
         waypoints: [L.latLng(userLat, userLng), L.latLng(dLat, dLng)],
         lineOptions: { styles: [{ color: '#ef4444', weight: 6, opacity: 0.8 }] },
         createMarker: () => null,
         addWaypoints: false,
-        draggableWaypoints: false,
-        fitSelectedRoutes: true,
-        show: false // Hides the clunky text instructions box
+        show: false
       }).addTo(map);
 
-      // 3. VOICE & UI UPDATES
       routingControl.on('routesfound', function(e) {
         const route = e.routes[0];
-        const dist = route.summary.totalDistance; // in meters
-        const time = Math.round(route.summary.totalTime / 60); // in minutes
-        
-        updateNavUI(dist, time);
-        speakOnce(`Starting navigation. Your vehicle is ${Math.round(dist)} meters away.`);
+        updateNavUI(route.summary.totalDistance, Math.round(route.summary.totalTime / 60));
+        if (route.instructions && route.instructions.length > 0) {
+            speakOnce(`Navigation started. ${route.instructions[0].text}`);
+        }
       });
 
-      // 4. LIVE TRACKING (watchPosition)
       watchId = navigator.geolocation.watchPosition((pos) => {
-        userLat = pos.coords.latitude;
-        userLng = pos.coords.longitude;
-        
-        // Update "YOU" marker on map
+        userLat = pos.coords.latitude; userLng = pos.coords.longitude;
         userMarker.setLatLng([userLat, userLng]);
-        
-        // Update Route Start Point
         routingControl.spliceWaypoints(0, 1, L.latLng(userLat, userLng));
 
-        // Check for "Arrived" logic (within 10 meters)
+        // TURN-BY-TURN LOGIC
+        const route = routingControl._router._currentRoute;
+        if (route && route.instructions && route.instructions[nextStepIndex + 1]) {
+            const nextStep = route.instructions[nextStepIndex + 1];
+            const distToTurn = map.distance([userLat, userLng], route.coordinates[nextStep.index]);
+            if (distToTurn < 30) {
+                nextStepIndex++;
+                speakOnce(`In 30 meters, ${nextStep.text}`);
+            }
+        }
         checkArrival(userLat, userLng, dLat, dLng);
-        
-      }, (err) => console.error(err), { enableHighAccuracy: true });
-
-      map.closePopup();
+      }, null, { enableHighAccuracy: true });
     }
 
-    // Voice Engine
     function speakOnce(text) {
         if (lastVoiceCommand === text) return;
+        window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(text);
-        msg.rate = 1.0;
         window.speechSynthesis.speak(msg);
         lastVoiceCommand = text;
     }
 
-    // Navigation UI
     function updateNavUI(m, mins) {
-        const km = (m / 1000).toFixed(2);
-        const list = document.getElementById('parking-list');
-        
-        // Remove old status if exists
-        const oldStatus = document.getElementById('nav-status');
-        if (oldStatus) oldStatus.remove();
-
-        list.insertAdjacentHTML('afterbegin', `
+        const old = document.getElementById('nav-status'); if (old) old.remove();
+        document.getElementById('parking-list').insertAdjacentHTML('afterbegin', `
             <div id="nav-status" class="bg-emerald-500/10 border border-emerald-500/40 p-4 rounded-2xl mb-4 animate-pulse">
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-emerald-400 font-black text-[10px] tracking-widest uppercase">Live Tracking</span>
-                    <span class="text-white font-bold text-xs">${mins} MINS</span>
-                </div>
-                <div class="text-white text-lg font-black">${km} <span class="text-[10px] text-slate-400">KM AWAY</span></div>
-            </div>
-        `);
+                <div class="flex justify-between items-center mb-1"><span class="text-emerald-400 font-black text-[10px] tracking-widest uppercase">Live Path</span><span class="text-white font-bold text-xs">${mins} MINS</span></div>
+                <div class="text-white text-lg font-black">${(m / 1000).toFixed(2)} <span class="text-[10px] text-slate-400">KM AWAY</span></div>
+            </div>`);
     }
 
     function checkArrival(uLat, uLng, dLat, dLng) {
-        const distance = map.distance([uLat, uLng], [dLat, dLng]);
-        if (distance < 15) { // Within 15 meters
-            speakOnce("You have arrived at your parking destination.");
+        if (map.distance([uLat, uLng], [dLat, dLng]) < 15) {
+            speakOnce("You have arrived at your destination.");
             navigator.geolocation.clearWatch(watchId);
-            const status = document.getElementById('nav-status');
-            if (status) status.innerHTML = `<div class="text-emerald-400 font-black text-center text-xs p-2">ARRIVED! 🏁</div>`;
+            document.getElementById('nav-status').innerHTML = `<div class="text-emerald-400 font-black text-center text-xs p-2">ARRIVED! 🏁</div>`;
         }
     }
-    function recenterMap() { if (userLat && userLng) map.flyTo([userLat, userLng], 16); }
 
-    function goBackToHome() {
-        document.getElementById('map-container').classList.remove('active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        document.getElementById('enable-gps-btn').innerText = "Enable GPS";
-    }
+    function recenterMap() { if (userLat && userLng) map.flyTo([userLat, userLng], 16); }
+    function goBackToHome() { document.getElementById('map-container').classList.remove('active'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
     document.getElementById('enable-gps-btn').addEventListener('click', function() {
       this.innerText = "Locating...";
@@ -276,7 +229,7 @@
         userLat = pos.coords.latitude; userLng = pos.coords.longitude;
         document.getElementById('map-container').classList.add('active');
         initMap(userLat, userLng);
-      }, (err) => { this.innerText = "Enable GPS"; alert("GPS Error"); }, { enableHighAccuracy: true });
+      }, (err) => { this.innerText = "Enable GPS"; alert("Please allow GPS access"); }, { enableHighAccuracy: true });
     });
   </script>
 </body>
