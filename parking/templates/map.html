@@ -17,17 +17,20 @@
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; overflow-x: hidden; }
 
-    .hero-section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1) 0%, transparent 50%); }
+    /* UI Effects */
+    .hero-section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1) 0%, transparent 50%); transition: all 0.5s ease; }
     .brand-text { font-size: clamp(3.5rem, 10vw, 7rem); font-weight: 900; background: linear-gradient(135deg, #38bdf8 0%, #34d399 50%, #38bdf8 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientMove 5s linear infinite; }
     @keyframes gradientMove { to { background-position: 200% center; } }
     .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
 
-    #map-container { display: none; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; z-index: 50; }
-    #map-container.active { display: block; animation: fadeIn 0.6s ease-out; }
+    /* Map Elements */
+    #map-container { display: none; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; z-index: 50; opacity: 0; transition: opacity 0.5s ease; }
+    #map-container.active { display: block; opacity: 1; animation: fadeIn 0.6s ease-out; }
     #map { height: 100%; width: 100%; z-index: 0; }
-    @keyframes fadeIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeIn { from { transform: scale(1.02); } to { transform: scale(1); } }
     .leaflet-routing-container { display: none !important; }
 
+    /* Custom Markers */
     .user-marker-label { background: #10b981; color: white; padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 900; border: 2px solid white; box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); white-space: nowrap; }
     .parking-marker-p { background: #ef4444; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; border: 2px solid white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); }
 
@@ -63,6 +66,10 @@
 
   <div id="map-container">
     <div id="map"></div>
+    
+    <button onclick="recenterMap()" class="fixed bottom-6 right-6 z-[1001] bg-emerald-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all">
+        <i data-lucide="locate-fixed" class="w-6 h-6"></i>
+    </button>
 
     <div id="sidebar" class="fixed top-0 left-0 h-full w-[350px] z-[1000] glass flex flex-col border-r border-white/5">
         <div class="p-6 border-b border-white/10">
@@ -74,13 +81,26 @@
         
         <div id="parking-list" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
 
-        <div class="p-4 border-t border-white/10 bg-slate-900/40">
-            <button onclick="window.location.reload()" class="w-full glass py-3 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-sky-500/20 transition-all mb-4">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i> Reset Map
+        <div class="p-6 border-t border-white/10 bg-slate-900/40">
+            <button onclick="goBackToHome()" class="w-full glass py-3 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-sky-500/20 transition-all mb-6 group">
+                <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> 
+                Back to home
             </button>
+            
             <div class="text-center">
-                <p class="text-[10px] text-slate-400 font-medium">Built by <span class="text-sky-400 font-bold">Kripesh Bhele</span></p>
-                <p class="text-[8px] text-slate-600 mt-1 uppercase tracking-widest">&copy; 2026 All Rights Reserved</p>
+                <p class="text-[10px] text-slate-400 font-medium tracking-tight">Built by</p>
+                <h4 class="text-sm font-black text-white mt-0.5 tracking-tighter">Kripesh Bhele</h4>
+                
+                <div class="flex justify-center gap-4 mt-3">
+                    <a href="https://www.linkedin.com/in/kripesh-bhele-74b4612bb/" target="_blank" class="text-slate-500 hover:text-sky-400 transition-all">
+                        <i data-lucide="linkedin" class="w-4 h-4"></i>
+                    </a>
+                    <a href="https://github.com/krio69" target="_blank" class="text-slate-500 hover:text-white transition-all">
+                        <i data-lucide="github" class="w-4 h-4"></i>
+                    </a>
+                </div>
+
+                <p class="text-[8px] text-slate-600 mt-4 uppercase tracking-[0.2em] font-bold">&copy; 2026 All Rights Reserved</p>
             </div>
         </div>
     </div>
@@ -88,9 +108,11 @@
 
   <script>
     lucide.createIcons();
-    let map, userLat, userLng, routingControl;
+    let map, userLat, userLng, routingControl, userMarker;
 
     function initMap(lat, lng) {
+      if (map) map.remove(); // Prevent duplicate maps on re-entry
+      
       map = L.map('map', { zoomControl: false }).setView([lat, lng], 15);
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CartoDB' }).addTo(map);
       L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -101,7 +123,7 @@
         iconSize: [40, 20],
         iconAnchor: [20, 10]
       });
-      L.marker([lat, lng], { icon: userIcon }).addTo(map);
+      userMarker = L.marker([lat, lng], { icon: userIcon }).addTo(map);
       loadGeoJSON();
     }
 
@@ -154,17 +176,34 @@
         lineOptions: { styles: [{ color: '#ef4444', weight: 6, opacity: 0.8 }] },
         createMarker: () => null,
         addWaypoints: false,
-        draggableWaypoints: false
+        draggableWaypoints: false,
+        fitSelectedRoutes: true
       }).addTo(map);
       map.closePopup();
     }
 
+    function recenterMap() {
+        if (userLat && userLng) map.flyTo([userLat, userLng], 16);
+    }
+
+    function goBackToHome() {
+        const container = document.getElementById('map-container');
+        container.classList.remove('active');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Optional: Re-enable the button if you want to allow re-entry without reload
+        document.getElementById('enable-gps-btn').innerText = "Enable GPS";
+    }
+
     document.getElementById('enable-gps-btn').addEventListener('click', function() {
+      this.innerText = "Locating...";
       navigator.geolocation.getCurrentPosition((pos) => {
         userLat = pos.coords.latitude; userLng = pos.coords.longitude;
         document.getElementById('map-container').classList.add('active');
         initMap(userLat, userLng);
-      }, (err) => alert("GPS Error"), { enableHighAccuracy: true });
+      }, (err) => {
+          this.innerText = "Enable GPS";
+          alert("GPS Error. Ensure you are on a secure (HTTPS or localhost) connection.");
+      }, { enableHighAccuracy: true });
     });
   </script>
 </body>
