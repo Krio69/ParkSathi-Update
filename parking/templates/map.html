@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ParkSathi — Premium Parking Finder</title>
+  <title>ParkSathi — Parking Finder</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -14,53 +14,25 @@
   
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-    
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; overflow-x: hidden; }
 
-    /* ── UI Components ── */
-    .hero-section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1) 0%, transparent 50%); }
-    .brand-text { font-size: clamp(3.5rem, 10vw, 7rem); font-weight: 900; background: linear-gradient(135deg, #38bdf8 0%, #34d399 50%, #38bdf8 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientMove 5s linear infinite; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: default; }
-    .brand-text:hover { transform: scale(1.08); }
+    /* ── Hero & UI ── */
+    .hero-section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1) 0%, transparent 50%); }
+    .brand-text { font-size: clamp(3.5rem, 10vw, 7rem); font-weight: 900; background: linear-gradient(135deg, #38bdf8 0%, #34d399 50%, #38bdf8 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradientMove 5s linear infinite; }
     @keyframes gradientMove { to { background-position: 200% center; } }
     .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
 
-    /* ── Map Elements ── */
+    /* ── Map Layout ── */
     #map-container { display: none; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; z-index: 50; }
     #map-container.active { display: block; animation: fadeIn 0.6s ease-out; }
     #map { height: 100%; width: 100%; z-index: 0; }
     @keyframes fadeIn { from { opacity: 0; transform: scale(1.02); } to { opacity: 1; transform: scale(1); } }
     .leaflet-routing-container { display: none !important; }
 
-    /* ── Custom Marker Styles ── */
-    .user-marker-label {
-        background: #10b981;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 20px;
-        font-size: 9px;
-        font-weight: 900;
-        border: 2px solid white;
-        box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
-        white-space: nowrap;
-    }
-
-    .parking-marker-p {
-        background: #ef4444;
-        color: white;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        font-size: 14px;
-        border: 2px solid white;
-        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
-        transition: transform 0.2s;
-    }
-    .parking-marker-p:hover { transform: scale(1.2); background: #dc2626; }
+    /* ── Markers ── */
+    .user-marker-label { background: #10b981; color: white; padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 900; border: 2px solid white; box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); white-space: nowrap; }
+    .parking-marker-p { background: #ef4444; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; border: 2px solid white; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); }
 
     #parking-list::-webkit-scrollbar { width: 4px; }
     #parking-list::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.3); border-radius: 10px; }
@@ -86,7 +58,7 @@
         <i data-lucide="map-pin" class="text-sky-400 w-10 h-10"></i>
       </div>
       <h2 class="text-3xl font-black text-white mb-4">Location Access</h2>
-      <p class="text-slate-400 text-sm leading-relaxed mb-10">GPS is required to show your position and parking spots from the Kathmandu database.</p>
+      <p class="text-slate-400 text-sm leading-relaxed mb-10">GPS is required to show your position and calculate routes to parking spots.</p>
       <button id="enable-gps-btn" class="w-full py-4 rounded-xl bg-sky-500 text-white font-bold text-lg mb-4 shadow-lg hover:bg-sky-400 transition-colors">
         Enable GPS
       </button>
@@ -125,7 +97,6 @@
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CartoDB' }).addTo(map);
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      // ── Updated User Marker (YOU Keyword) ──
       const userIcon = L.divIcon({
         html: `<div class="user-marker-label">YOU</div>`,
         className: '',
@@ -146,7 +117,6 @@
 
           const parkingLayer = L.geoJSON(data, {
             pointToLayer: (feature, latlng) => {
-              // ── Updated Parking Marker (P Keyword) ──
               return L.marker(latlng, {
                 icon: L.divIcon({
                     html: `<div class="parking-marker-p">P</div>`,
@@ -157,6 +127,9 @@
               });
             },
             onEachFeature: (feature, layer) => {
+              const pLat = feature.geometry.coordinates[1];
+              const pLng = feature.geometry.coordinates[0];
+
               const card = document.createElement('div');
               card.className = "bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-red-500/50 hover:bg-white/10 transition-all cursor-pointer group";
               card.innerHTML = `
@@ -168,18 +141,18 @@
               `;
               
               card.onclick = () => {
-                map.flyTo([feature.geometry.coordinates[1], feature.geometry.coordinates[0]], 17);
+                map.flyTo([pLat, pLng], 17);
                 layer.openPopup();
-                startNav(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+                startNav(pLat, pLng);
               };
               list.appendChild(card);
 
               layer.bindPopup(`
-                <div class="text-slate-800 p-1 text-center">
+                <div class="text-slate-800 p-1 text-center" style="min-width:120px">
                   <h3 class="font-bold text-sm mb-2">${feature.properties.name}</h3>
-                  <button onclick="startNav(${feature.geometry.coordinates[1]}, ${feature.geometry.coordinates[0]})" 
-                          style="background:#ef4444; color:white; width:100%; border:none; padding:8px; border-radius:6px; font-weight:bold; cursor:pointer;">
-                    GO NOW
+                  <button onclick="startNav(${pLat}, ${pLng})" 
+                          style="background:#ef4444; color:white; width:100%; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">
+                    GET DIRECTIONS
                   </button>
                 </div>
               `);
@@ -192,20 +165,26 @@
     }
 
     function startNav(dLat, dLng) {
+      if (!userLat || !userLng) return;
       if (routingControl) map.removeControl(routingControl);
+
       routingControl = L.Routing.control({
         waypoints: [L.latLng(userLat, userLng), L.latLng(dLat, dLng)],
         lineOptions: { styles: [{ color: '#ef4444', weight: 6, opacity: 0.8 }] },
+        addWaypoints: false,
+        draggableWaypoints: false,
         createMarker: () => null
       }).addTo(map);
+      map.closePopup();
     }
 
-    document.getElementById('enable-gps-btn').addEventListener('click', () => {
+    document.getElementById('enable-gps-btn').addEventListener('click', function() {
+      this.innerText = "Locating...";
       navigator.geolocation.getCurrentPosition((pos) => {
         userLat = pos.coords.latitude; userLng = pos.coords.longitude;
         document.getElementById('map-container').classList.add('active');
         initMap(userLat, userLng);
-      }, (err) => alert("GPS required. Use http://localhost:8000"));
+      }, (err) => alert("GPS error. Use http://localhost:8000"), { enableHighAccuracy: true });
     });
   </script>
 </body>
