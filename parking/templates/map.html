@@ -81,6 +81,15 @@
             <div class="text-center">
                 <p class="text-[10px] text-slate-400 font-medium">Built by</p>
                 <h4 class="text-sm font-black text-white mt-0.5">Kripesh Bhele</h4>
+                <div class="flex justify-center gap-4 mt-3">
+                    <a href="https://www.linkedin.com/in/kripesh-bhele-74b4612bb/" target="_blank" class="text-slate-500 hover:text-sky-400 transition-all">
+                        <i data-lucide="linkedin" class="w-4 h-4"></i>
+                    </a>
+                    <a href="https://github.com/krio69" target="_blank" class="text-slate-500 hover:text-white transition-all">
+                        <i data-lucide="github" class="w-4 h-4"></i>
+                    </a>
+                </div>
+                <p class="text-[8px] text-slate-600 mt-4 uppercase tracking-[0.2em] font-bold">&copy; 2026 All Rights Reserved</p>
             </div>
         </div>
     </div>
@@ -90,7 +99,7 @@
     lucide.createIcons();
     let map, userLat, userLng, routingControl, userMarker, watchId;
     let lastVoiceCommand = "";
-    let nextStepIndex = 0; // Tracks the current turn instruction
+    let nextStepIndex = 0;
 
     function initMap(lat, lng) {
       if (map) map.remove();
@@ -131,7 +140,7 @@
       if (!userLat || !userLng) return;
       if (routingControl) map.removeControl(routingControl);
       if (watchId) navigator.geolocation.clearWatch(watchId);
-      nextStepIndex = 0; // Reset for new trip
+      nextStepIndex = 0;
 
       routingControl = L.Routing.control({
         waypoints: [L.latLng(userLat, userLng), L.latLng(dLat, dLng)],
@@ -155,7 +164,6 @@
         userMarker.setLatLng([userLat, userLng]);
         routingControl.spliceWaypoints(0, 1, L.latLng(userLat, userLng));
 
-        // --- LIVE VOICE TURN-BY-TURN ENGINE ---
         const route = routingControl._router._currentRoute;
         if (route && route.instructions) {
             const nextInstruction = route.instructions[nextStepIndex + 1];
@@ -163,7 +171,6 @@
                 const turnCoord = route.coordinates[nextInstruction.index];
                 const distanceToTurn = map.distance([userLat, userLng], turnCoord);
 
-                // Speak when within 30 meters of a turn
                 if (distanceToTurn < 30) {
                     nextStepIndex++;
                     speakOnce(`In 30 meters, ${nextInstruction.text}`);
