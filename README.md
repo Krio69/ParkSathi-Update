@@ -31,8 +31,6 @@
 ---
 
 ## 🆕 Latest Updates
-
-* **Mobile Navigation Engine:** Transitioned from a static map to a live, active navigation system optimized for on-the-go use.
 * **Voice Integration:** Added a hands-free experience for drivers and riders to ensure safety while navigating.
 * **UI Morphing Logo:** A modern, organic-shaped CSS animation providing a unique and professional brand identity.
 
@@ -40,7 +38,7 @@
 
 ## ⚠️ Note for Users
 
-**This version is now fully functional for both Mobile and Desktop!** 📱🔊
+**This version is now fully functional for Desktop! and for mobile version the work is on progress** 📱🔊
 
 To ensure the best experience:
 1. **Location Access:** Grant the browser permission to access your GPS.
